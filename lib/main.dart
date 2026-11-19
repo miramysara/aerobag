@@ -4,11 +4,10 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 void main() {
-  // Starting point of the app
   runApp(const MyApp());
 }
 
-// ===================== APP COLORS (Lab 5) =====================
+//APP COLORS
 class AppColors {
   static const Color colorPrimary = Color(0xFF0B2D6B);
   static const Color colorOnPrimary = Color(0xFFFFFFFF);
@@ -23,19 +22,19 @@ class AppColors {
   static const Color colorDanger = Color(0xFFD93025);
 }
 
-// ===================== MENU ITEMS (Lab 3) =====================
+//MENU ITEMS
 enum MenuAction { home, about }
 
-// ===================== MAIN APPLICATION =====================
+//MAIN APPLICATION
 class MyApp extends StatelessWidget {
-  // Stateless: nothing here changes (Lab 2)
+  // Stateless: nothing
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'AeroBag',
-      debugShowCheckedModeBanner: false, // Remove the DEBUG banner (Lab 2)
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.colorPrimary)
@@ -58,9 +57,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ===================== HOME PAGE =====================
+//HOME PAGE
 class HomePage extends StatefulWidget {
-  // Stateful: the screen changes at runtime (Lab 2)
+  // Stateful:screen changes
   const HomePage({super.key});
 
   @override
@@ -69,12 +68,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController weightController =
-      TextEditingController(); // Reads the text typed in the weight box (Lab 4)
+      TextEditingController(); //text typed in the weight box
   final TextEditingController rateController =
-      TextEditingController(); // Reads the text typed in the rate box (Lab 4)
+      TextEditingController(); //text typed in the rate box
 
-  String? selectedClass; // null = no ticket class selected yet
-
+  String? selectedClass; // null
   bool hasResult = false;
   double baggageWeight = 0;
   double freeAllowance = 0;
@@ -83,10 +81,9 @@ class _HomePageState extends State<HomePage> {
   double serviceTax = 0;
   double totalPayable = 0;
 
-  MenuAction currentPage =
-      MenuAction.home; // Which page is showing: Home or About
+  MenuAction currentPage = MenuAction.home;
 
-  // My details for the About page
+  //About page
   final String authorName = 'Amirah Maisarah Binti Abdul Razak';
   final String matricNo = '2025426422';
   final String course = 'ICT602 Mobile Technology and Development';
@@ -94,17 +91,16 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    // Frees the controllers when the page closes
     weightController.dispose();
     rateController.dispose();
     super.dispose();
   }
 
-  // ===================== CALCULATE FUNCTION =====================
+  //CALCULATE FUNCTION
   void calculateFee() {
     double weight;
     try {
-      // Lab 4: try-catch in case the weight is not a number
+      //in case the weight is not a number
       weight = double.parse(weightController.text.trim());
     } on FormatException catch (e) {
       debugPrint('FormatException: $e');
@@ -123,37 +119,41 @@ class _HomePageState extends State<HomePage> {
 
     final double? rate = double.tryParse(
       rateController.text.trim(),
-    ); // Lab 5: tryParse gives null if the rate is not a number
+    ); //gives null if the rate is not a number
     if (rate == null) {
       showMessage('Please enter a valid rate per kg.');
       return;
     }
 
-    if (weight < 0 || rate < 0) {
-      showMessage('Weight and rate cannot be negative.');
+    if (weight <= 0 || weight > 100) {
+      showMessage('Baggage weight must be between 0.1 and 100 kg.');
       return;
     }
 
-    double allowance = 20; // X = 20 kg for Economy, 40 kg for Business
+    if (rate <= 0 || rate > 500) {
+      showMessage('Rate per kg must be between RM0.01 and RM500.');
+      return;
+    }
+
+    double allowance = 20;
     if (selectedClass == 'Business') allowance = 40;
 
     double excess = weight - allowance;
-    if (excess < 0) excess = 0; // Excess weight is never negative
+    if (excess < 0) excess = 0;
 
     setState(() {
-      // Save the results and redraw the screen (Lab 2)
+      // Save the results and update
       hasResult = true;
       baggageWeight = weight;
       freeAllowance = allowance;
       excessWeight = excess;
-      excessCharge =
-          excess * rate; // Excess charge = excess weight x rate per kg
+      excessCharge = excess * rate; //excess weight x rate per kg
       serviceTax = excessCharge * 0.08; // 8% service tax
       totalPayable = excessCharge + serviceTax;
     });
   }
 
-  // ===================== RESET FUNCTION =====================
+  //RESET FORM
   void resetForm() {
     setState(() {
       weightController.clear();
@@ -163,7 +163,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // ===================== MESSAGE FUNCTION =====================
+  //MESSAGE FUNCTION
   void showMessage(String text) {
     setState(() => hasResult = false);
     ScaffoldMessenger.of(context)
@@ -181,7 +181,7 @@ class _HomePageState extends State<HomePage> {
       );
   }
 
-  // ===================== SHARE FUNCTION (Lab 6) =====================
+  //SHARE FUNCTION
   Future<void> shareResult() async {
     await SharePlus.instance.share(
       ShareParams(
@@ -197,19 +197,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== OPEN GITHUB FUNCTION =====================
+  //GITHUB
   Future<void> openGitHub() async {
     try {
-      await launchUrl(
-        Uri.parse(githubUrl),
-      ); // url_launcher (not from lab): opens the link in the browser
+      await launchUrl(Uri.parse(githubUrl)); // url_launcher
     } catch (e) {
       debugPrint('Launch error: $e');
       showMessage('Unable to open the GitHub link.');
     }
   }
 
-  // ===================== BUILD UI =====================
+  //DECORATION
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -290,7 +288,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== HERO TITLE =====================
+  //HERO TITLE
   Widget heroTitle(String title, String subtitle, List<Widget> extra) {
     return Stack(
       alignment: Alignment.topCenter,
@@ -342,7 +340,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== INFO CHIP =====================
+  // INFO CHIP
   Widget infoChip(IconData icon, String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -370,7 +368,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== SECTION HEADER =====================
+  //SECTION HEADER
   Widget sectionHeader(IconData icon, String title, String subtitle) {
     return Row(
       children: [
@@ -415,7 +413,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== FIELD LABEL =====================
+  //FIELD LABEL
   Widget fieldLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -430,7 +428,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== TEXT BOX STYLE =====================
+  // TEXT BOX STYLE
   InputDecoration inputStyle(String hint, String suffix) {
     return InputDecoration(
       hintText: hint,
@@ -450,7 +448,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== TWO COLUMNS =====================
+  //TWO COLUMNS
   Widget twoColumns(bool wide, Widget left, Widget right) {
     if (wide) {
       return Row(
@@ -468,7 +466,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== HOME PAGE CONTENT =====================
+  // HOME PAGE CONTENT
   Widget buildHomePage(bool wide) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -610,7 +608,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== GRADIENT BUTTON =====================
+  //BUTTON
   Widget gradientButton(IconData icon, String label, VoidCallback onPressed) {
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -640,7 +638,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== RESULT CONTENT =====================
+  //RESULT
   Widget buildResult(bool wide) {
     final double usage = baggageWeight / freeAllowance;
     final bool isOver = excessWeight > 0;
@@ -756,7 +754,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== EMPTY RESULT =====================
+  //EMPTY RESULT
   Widget buildEmptyResult() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
@@ -787,7 +785,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== TICKET CLASS RADIO =====================
+  //TICKET CLASS RADIO BUTTON
   Widget classRadio(String value, String subtitle, IconData icon) {
     final bool isSelected = selectedClass == value;
     return RadioListTile<String>(
@@ -820,7 +818,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== RESULT ROW =====================
+  //RESULT ROW
   Widget resultRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -844,7 +842,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== ABOUT PAGE CONTENT =====================
+  //ABOUT PAGE CONTENT
   Widget buildAboutPage(bool wide) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1089,7 +1087,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== OVERLINE LABEL =====================
   Widget overline(String text) {
     return Text(
       text,
@@ -1102,7 +1099,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== FEATURE ROW =====================
   Widget featureRow(IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -1132,7 +1128,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== DETAIL ROW =====================
   Widget detailRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -1162,7 +1157,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ===================== INITIALS =====================
   String initials(String name) {
     String result = '';
     for (String word in name.trim().split(' ')) {
